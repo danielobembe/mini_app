@@ -1,4 +1,7 @@
-from flask import Flask 
+from flask import Flask, url_for
+from flask import request 
+from flask import render_template
+
 app = Flask(__name__)
 
 #Basic routing
@@ -7,12 +10,20 @@ def index():
     return "Index page"
 
 @app.route('/hello')
-def hello_world():
-    return "Hello, World!"
+@app.route('/hello/<name>')
+def hello_world(name=None):
+    return render_template('hello.html',name=name)
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        return do_the_login()
+    else:
+        return show_the_login_form()
 
 #Routing with variable rules
 @app.route('/user/<username>')
-def show_user_profile(username):
+def profile(username):
     #show the user-profile for that user
     return 'User: %s' % username
 
@@ -29,16 +40,18 @@ def show_subpath(subpath):
 """note: converter types: string, int, float
                             path, uuid   """
 
-#Unique/Canonical URLs
-@app.route('/projects/')
-def projects():
-    #note trailing slash
-    return 'The project page'
+def do_the_login():
+    return "I am the login"
 
-@app.route('/about')
-def about():
-    #not no trailing slash
-    return 'The about page'
+def show_the_login_form():
+    return "I am the login form"
+
+
+with app.test_request_context():
+    print(url_for('index'))
+    print(url_for('login'))
+    print(url_for('login', next="/"))
+    print(url_for('profile', username='John Doe'))
 
 
 
